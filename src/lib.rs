@@ -21,7 +21,12 @@ impl Item {
             name: "".to_string(),
             producer: "".to_string(),
             quantity: 0,
-            mass:
+            mass: "".to_string(),
+            max_per_household: 0
         }
+    }
+    fn set_name(mut self, name: String) -> Self {
+        self.name = name;
+        self
     }
 }
