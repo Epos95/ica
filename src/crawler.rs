@@ -1,6 +1,6 @@
 
 use select::document::Document;
-use select::predicate::{Attr, Class, Name, Predicate, Element};
+use select::predicate::{Class, Name};
 use select::node::Node;
 
 use ica::*;

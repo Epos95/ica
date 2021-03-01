@@ -10,27 +10,26 @@ pub fn show(
     let mut res = String::new();
 
 
-    // redesign this so that it uses a proper regex
     // loop over all the strings in word_list
     for item in items {
-        // use fuzzy match for the string here
-        // skriv egen algoritm för det
-
         // match on everything
         let mut found_match = false;
         for word in config.word_list.iter() {
-            if match_words(word.to_string(), item.name.clone()) {
+             if (match_words(word, &item.name)) || 
+                (match_words(word, &item.producer)) || 
+                (match_words(word, &item.more_info)) {
+
                 found_match = true;
-                break; 
+                break;       
             }
         }
 
         if found_match || matches.is_present("all") {
-            res += &format!("\n{}, {}, {}, {}",
+            res += &format!("\n  {}, {}, {}, {}",
                           item.name,
                           item.producer,
                           item.mass,
-                          item.deal
+                          item.deal,
                           );
         }
     }
@@ -48,7 +47,7 @@ pub enum CasterErrors {
     NoProductsFound
 }
 
-fn match_words(word: String, to_search_in: String) -> bool {
-    // if {word} exists in some capacity in {to_search_in}, true
-    true
+// maybe rewrite this to use proper search thing 
+fn match_words(word: &String, to_search_in: &String) -> bool {
+    to_search_in.to_lowercase().contains(word.to_lowercase().as_str())
 }

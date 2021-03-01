@@ -90,7 +90,7 @@ async fn main() {
                             0
                         }
                     },
-                    Err(e) => {
+                    Err(_) => {
                         //println!("{}", e);
                         println!("invalid input, defaulting to first url");
                         0
@@ -132,7 +132,7 @@ async fn main() {
                         color::Fg(color::Reset));
             std::process::exit(0);
         },
-        _ => { panic!("unimplemented error"); }
+        //_ => { panic!("unimplemented error"); }
     };
 
     let items = match crawler::get_items(document).await {
@@ -142,9 +142,8 @@ async fn main() {
                         color::Fg(color::Red),
                         color::Fg(color::Reset));
             std::process::exit(0);
-
         }
-        _ => { panic!("unimplemented error"); }
+        //_ => { panic!("unimplemented error"); }
     };
 
     if let Err(caster::CasterErrors::NoProductsFound) = caster::show(items, matches, config) {
