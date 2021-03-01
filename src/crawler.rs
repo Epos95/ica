@@ -5,6 +5,44 @@ use select::node::Node;
 
 use ica::*;
 
+
+pub async fn get_items(dom: Document) -> Result<Vec<Item>, CrawlerErrors> {
+
+    let mut res: Vec<Item> = vec![];
+
+    let names: Vec<String> = dom.find(Class("offer-type__product-name"))
+            .map(|x| normalize(x.text()))
+            .collect();
+
+    if names.is_empty() {
+        return Err(CrawlerErrors::HTMLStructureError);
+    }
+
+    for (ctr, node) in dom.find(Class("product-info-wrapper__body")).enumerate() {
+
+        let a: Vec<String> = node.find(Name("p"))
+            .collect::<Vec<Node>>()
+            .iter_mut()
+            .map(|x| normalize(x.text()))
+            .collect();
+
+        res.push(Item::new(
+            names.get(ctr).unwrap().to_string(),
+            a.get(0).unwrap().to_string(),
+            a.get(1).unwrap().to_string(),
+            a.get(2).unwrap().to_string(),
+            parse_more_info(a.get(2).unwrap().to_string())
+        ))
+
+    }
+
+    Ok(res)
+}
+
+pub enum CrawlerErrors {
+    HTMLStructureError
+}
+
 fn normalize(s: String) -> String {
     let r = s.replace("\n", "");
     let v: Vec<String> = r.split(' ')
@@ -50,42 +88,4 @@ fn parse_more_info(info: String) -> (bool, bool, String) {
     }
 
     res
-}
-
-
-pub async fn get_items(dom: Document) -> Result<Vec<Item>, CrawlerErrors> {
-
-    let mut res: Vec<Item> = vec![];
-
-    let names: Vec<String> = dom.find(Class("offer-type__product-name"))
-            .map(|x| normalize(x.text()))
-            .collect();
-
-    if names.is_empty() {
-        return Err(CrawlerErrors::HTMLStructureError);
-    }
-
-    for (ctr, node) in dom.find(Class("product-info-wrapper__body")).enumerate() {
-
-        let a: Vec<String> = node.find(Name("p"))
-            .collect::<Vec<Node>>()
-            .iter_mut()
-            .map(|x| normalize(x.text()))
-            .collect();
-
-        res.push(Item::new(
-            names.get(ctr).unwrap().to_string(),
-            a.get(0).unwrap().to_string(),
-            a.get(1).unwrap().to_string(),
-            a.get(2).unwrap().to_string(),
-            parse_more_info(a.get(2).unwrap().to_string())
-        ));
-
-    }
-
-    Ok(res)
-}
-
-pub enum CrawlerErrors {
-    HTMLStructureError
 }

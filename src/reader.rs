@@ -1,16 +1,3 @@
-/*
- * purpose:
- *      This function is meant to get a valid Config struct for usage in main
- *
- * accepts:
- *      matches from clap from main
- *
- * returns:
- *      A config struct that includes the list of grocceries the user likes and urls
- *      for stores that the user might check on
- *
- *      A ReaderError if something bad happens so that main can pretty print it
- */
 
 use ica::*;
 use clap::ArgMatches;

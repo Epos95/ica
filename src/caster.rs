@@ -12,7 +12,6 @@ pub fn show(
 
     // loop over all the strings in word_list
     for item in items {
-        // match on everything
         let mut found_match = false;
         for word in config.word_list.iter() {
              if (match_words(word, &item.name)) || 
