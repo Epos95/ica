@@ -9,12 +9,13 @@
  *      A config struct that includes the list of grocceries the user likes and urls
  *      for stores that the user might check on
  *
- *      A RunnerError if something bad happens so that main can pretty print it
+ *      A ReaderError if something bad happens so that main can pretty print it
  */
 
 use ica::*;
 use clap::ArgMatches;
 use std::fs;
+use termion::*;
 
 // entry point
 pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
@@ -34,7 +35,7 @@ pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
     };
 
     // read from file
-    let s: String = match fs::read_to_string(filename) {
+    let s: String = match fs::read_to_string(&filename) {
         Ok(s) => s,
         _ => { return Err(ReaderErrors::CouldntReadFile); }
     };
@@ -44,6 +45,12 @@ pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
         Ok(s) => s,
         _ => { return Err(ReaderErrors::InvalidConfigFile); }
     };
+
+    println!("{}  Ok{}: Found config file at {}",
+            color::Fg(color::Green),
+            color::Fg(color::Reset),
+            filename
+    );
 
     Ok(json)
 }

@@ -5,26 +5,67 @@ use select::node::Node;
 
 use ica::*;
 
-pub fn normalize(s: String) -> String {
+fn normalize(s: String) -> String {
     let r = s.replace("\n", "");
-    let v: Vec<String> = r.split(' ').map(|x| x.to_string()).collect();
-    println!("{:?}", v);
+    let v: Vec<String> = r.split(' ')
+        .map(|x| x.to_string())
+        .filter(|x| x != &"".to_string())
+        .collect();
+
     v.join(" ")
-
-
 }
+
+fn parse_more_info(info: String) -> (bool, bool, String) {
+    let mut res = (false, false, "".to_string());
+    let mut v: Vec<String> = info.split(" ")
+        .map(|x| x.to_string())
+        .collect();
+
+    if v.contains(&"Stammispris".to_string()) {
+        res.0 = true;
+        v.retain(|x| x != &"Stammispris".to_string());
+    }
+
+    if v.contains(&"Fryst".to_string()) && v.contains(&"Frysta.".to_string()) {
+        res.1 = true;
+        v.remove(0);
+    }
+
+    for (i, word) in v.iter().rev().enumerate() {
+        if word == &"/st".to_string() || word == &"/+pant".to_string() || word == &"/kg".to_string() {
+            res.2 = format!("{}/st", v.iter().rev().nth(i+1).unwrap());
+            break;
+        } else if word.contains(&":-".to_string()) {
+            if v.iter().rev().nth(i+1).unwrap() == &"för".to_string() {
+                res.2 = format!("{} för {}", v.iter().rev().nth(i+2).unwrap(), v.iter().rev().nth(i).unwrap());
+                break;
+            }
+        } else if word.contains(&"/kg".to_string()) {
+            res.2 = word.to_string();
+        }
+    }
+
+    if res.2 == "".to_string() {
+        res.2 = "Invalid info".to_string();
+    }
+
+    res
+}
+
 
 pub async fn get_items(dom: Document) -> Result<Vec<Item>, CrawlerErrors> {
 
-    let res: Vec<Item> = vec![];
+    let mut res: Vec<Item> = vec![];
 
-    for node in dom.find(Class("product-info-wrapper__body")).take(1) {
-
-        let q: Vec<String> = node.find(Name("h4"))
-            .collect::<Vec<Node>>()
-            .iter_mut()
-            .map(|x| x.text().replace("\n","").replace(" ", ""))
+    let names: Vec<String> = dom.find(Class("offer-type__product-name"))
+            .map(|x| normalize(x.text()))
             .collect();
+
+    if names.is_empty() {
+        return Err(CrawlerErrors::HTMLStructureError);
+    }
+
+    for (ctr, node) in dom.find(Class("product-info-wrapper__body")).enumerate() {
 
         let a: Vec<String> = node.find(Name("p"))
             .collect::<Vec<Node>>()
@@ -32,42 +73,19 @@ pub async fn get_items(dom: Document) -> Result<Vec<Item>, CrawlerErrors> {
             .map(|x| normalize(x.text()))
             .collect();
 
-        for i in 0..q.len() {
-            println!("{} {}", q.get(i).unwrap(), a.get(i).unwrap());
-        }
-        println!("\n");
-
-        /*
-        println!("starting h4");
-        for h in node.find(Name("h4")) {
-            println!("{}", h.text().replace("\n", ""));
-        }
-        println!("p starting now");
-
-        for h in node.find(Name("p")) {
-            println!("{}", h.text().replace("\n", ""));
-        }
-        println!();
-        */
-    }
-    /*
-    println!("prices:");
-    for node in dom.find(Class("product-price__price-items-wrapper")) {
-        //println!("{:?}", node.text().replace("\n", ""));
-        let amount: Vec<Node> = node.find(Class("product-price__amount")).collect();
-        if !amount.is_empty() {
-            println!("{:?}", amount.get(0).unwrap().text());
-        }
+        res.push(Item::new(
+            names.get(ctr).unwrap().to_string(),
+            a.get(0).unwrap().to_string(),
+            a.get(1).unwrap().to_string(),
+            a.get(2).unwrap().to_string(),
+            parse_more_info(a.get(2).unwrap().to_string())
+        ));
 
     }
-    */
 
-
-
-
-    Ok(vec!["".to_string()])
+    Ok(res)
 }
 
 pub enum CrawlerErrors {
-
+    HTMLStructureError
 }

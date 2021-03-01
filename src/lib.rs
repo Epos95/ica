@@ -1,32 +1,48 @@
 use serde::Serialize;
 use serde::Deserialize;
 
+use std::fmt;
+
 #[derive(Serialize, Deserialize)]
 pub struct Config {
     pub word_list: Vec<String>,
     pub urls: Vec<String>
 }
 
+#[derive(Debug)]
 pub struct Item {
-    name: String,
-    producer: String,
-    quantity: i16,
-    mass: String,
-    max_per_household: i16,
+    pub name: String,
+    pub producer: String,
+    pub mass: String,
+    pub more_info: String,
+    pub stammispris: bool,
+    pub frozen: bool,
+    pub deal: String
 }
 
 impl Item {
-    fn new() -> Self {
+    pub fn new(
+        name: String,
+        producer: String,
+        mass: String,
+        more_info: String,
+        thing: (bool, bool, String)
+    ) -> Self {
         Item {
-            name: "".to_string(),
-            producer: "".to_string(),
-            quantity: 0,
-            mass: "".to_string(),
-            max_per_household: 0
+            name: name,
+            producer: producer,
+            mass: mass,
+            more_info: more_info,
+            stammispris: thing.0,
+            frozen: thing.1,
+            deal: thing.2
         }
     }
-    fn set_name(mut self, name: String) -> Self {
-        self.name = name;
-        self
+}
+
+impl fmt::Display for Item {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt.write_str(&self.deal)?;
+        Ok(())
     }
 }

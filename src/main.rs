@@ -1,6 +1,3 @@
-// this should be the entry point
-//use select::document::Document;
-//use select::predicate::Class;
 use clap::{Arg, App};
 use std::io;
 use std::io::BufRead;
@@ -9,6 +6,7 @@ use termion::*;
 mod reader;
 mod networker;
 mod crawler;
+mod caster;
 
 #[tokio::main]
 async fn main() {
@@ -23,22 +21,23 @@ async fn main() {
              .value_name("FILE")
              .takes_value(true))
         .arg(Arg::new("all")
-             .about("Print out everything that is on sale, not just stuff that matches the given config file")
+             .about("Print out everything that is on sale, not just stuff that \
+                    matches the given config file")
              .short('a'))
         .arg(Arg::new("dump")
              .about("Dumps output as json")
              .long("dump")
              .short('d'))
-        .arg(Arg::new("store")
-             .about("Part of the url of the store to be checked")
-             .short('s')
-             .long("store")
+        .arg(Arg::new("url")
+             .about("The url of the store to check out")
+             .short('u')
+             .long("url")
              .takes_value(true)
              .value_name("STORE"))
         .get_matches();
 
     // get config struct
-    let config = match reader::get_config(matches) {
+    let config = match reader::get_config(matches.clone()) {
         Ok(s) => s,
         Err(reader::ReaderErrors::CouldntReadFile) => {
             println!("   {}Error{}: couldnt read the file",
@@ -54,57 +53,73 @@ async fn main() {
         }
     };
 
-    let selected_store = match config.urls.len() {
-        0 => {
-            println!("   {}Error{}: no stores listed in config file.",
-                        color::Fg(color::Red),
-                        color::Fg(color::Reset));
-            std::process::exit(0);
-        },
-        1 => config.urls[0].clone(),
-        _ => {
-            // more than one store listed
+    let selected_store = if matches.is_present("url") {
+        matches.value_of("url").unwrap().to_string()
+    } else {
+        match config.urls.len() {
+            0 => {
+                println!("   {}Error{}: no stores listed in config file.",
+                            color::Fg(color::Red),
+                            color::Fg(color::Reset));
+                std::process::exit(0);
+            },
+            1 => config.urls[0].clone(),
+            _ => {
+                // more than one store listed
 
-            println!(" Choose store url to use:");
-            for (i, store) in config.urls.iter().enumerate() {
-                println!("  {}{}{}: {}",
-                         style::Bold,
-                         i+1,
-                         style::Reset,
-                         store);
-            }
+                println!(" Choose store url to use:");
+                for (i, store) in config.urls.iter().enumerate() {
+                    println!("  {}{}{}: {}",
+                            style::Bold,
+                            i+1,
+                            style::Reset,
+                            store);
+                }
 
-            let mut line = String::new();
-            let stdin = io::stdin();
-            stdin.lock().read_line(&mut line).expect("Could not read line");
+                let mut line = String::new();
+                let stdin = io::stdin();
+                stdin.lock().read_line(&mut line).expect("Could not read line");
 
-            let mut inte = match line.trim().parse::<i32>() {
-                Ok(s)  => {
-                    if s > 0 {
-                        s-1
-                    } else{
-                        println!("invalid sdfginput, defaulting to first url");
+                
+                let mut inte = match line.trim().parse::<i32>() {
+                    Ok(s)  => {
+                        if s > 0 {
+                            s-1
+                        } else{
+                            println!("invalid input, defaulting to first url");
+                            0
+                        }
+                    },
+                    Err(e) => {
+                        //println!("{}", e);
+                        println!("invalid input, defaulting to first url");
                         0
                     }
-                },
-                Err(e) => {
-                    println!("{}", e);
+                };
+
+                if config.urls.len() <= inte as usize {
                     println!("invalid input, defaulting to first url");
-                    0
+                    inte = 0;
                 }
-            };
 
-            if config.urls.len() <= inte as usize {
-                println!("invalid input, defaulting to first url");
-                inte = 0;
+                config.urls[inte as usize].clone()
             }
-
-            config.urls[inte as usize].clone()
         }
     };
 
+    println!("  {}Ok{}: Using store url: {}",
+             color::Fg(color::Green),
+             color::Fg(color::Reset),
+             selected_store.to_string());
+
+
     let document = match networker::get_dom(selected_store).await {
-        Ok(s) => s,
+        Ok(s) => {
+            println!("  {}Ok{}: Downloaded HTML document.",
+                     color::Fg(color::Green),
+                     color::Fg(color::Reset));
+            s
+        }
         Err(networker::NetworkerErrors::NetworkError) => {
             println!("   {}Error{}: Could not connect to website.",
                         color::Fg(color::Red),
@@ -112,7 +127,18 @@ async fn main() {
             std::process::exit(0);
         },
         Err(networker::NetworkerErrors::ConversionError) => {
-            println!("   {}Error{}: Could not get text of HTML.",
+            println!("  {}Error{}: Could not get text of HTML.",
+                        color::Fg(color::Red),
+                        color::Fg(color::Reset));
+            std::process::exit(0);
+        },
+        _ => { panic!("unimplemented error"); }
+    };
+
+    let items = match crawler::get_items(document).await {
+        Ok(s) => s,
+        Err(crawler::CrawlerErrors::HTMLStructureError) => {
+            println!("  {}Error{}: HTML did not match expected website, are you sure that is ica?",
                         color::Fg(color::Red),
                         color::Fg(color::Reset));
             std::process::exit(0);
@@ -121,18 +147,9 @@ async fn main() {
         _ => { panic!("unimplemented error"); }
     };
 
-    let items = match crawler::get_items(document).await {
-        Ok(s) => s,
-        _ => { panic!("unimplemented error"); }
-    };
-
-    println!("{:?}", items);
-
-    // get the document of the web page
-
-    // analyze the document and get the data
-
-    // compare the data to the users config and what things they pay attention too
-
-    // print out nicely or dump as json
+    if let Err(caster::CasterErrors::NoProductsFound) = caster::show(items, matches, config) {
+        println!("  {}Info{}: No matching products where found!",
+                    color::Fg(color::Yellow),
+                    color::Fg(color::Reset))
+    }
 }
