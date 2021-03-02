@@ -2,7 +2,7 @@
 use reqwest;
 use select::document::Document;
 
-pub async fn get_dom(url: String) -> Result<Document, NetworkerErrors> {
+pub async fn get_dom(url: &String) -> Result<Document, NetworkerErrors> {
     let res = match reqwest::get(url.as_str()).await {
         Ok(s) => s,
         Err(_) => { return Err(NetworkerErrors::NetworkError); }

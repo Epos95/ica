@@ -113,7 +113,7 @@ async fn main() {
              selected_store.to_string());
 
 
-    let document = match networker::get_dom(selected_store).await {
+    let document = match networker::get_dom(&selected_store).await {
         Ok(s) => {
             println!("  {}Ok{}: Downloaded HTML document.",
                      color::Fg(color::Green),
@@ -132,10 +132,10 @@ async fn main() {
                         color::Fg(color::Reset));
             std::process::exit(0);
         },
-        //_ => { panic!("unimplemented error"); }
+        //_ => { panic!("unimplemented error"); store: String}
     };
 
-    let items = match crawler::get_items(document).await {
+    let items = match crawler::get_items(document, get_store_type(selected_store)).await {
         Ok(s) => s,
         Err(crawler::CrawlerErrors::HTMLStructureError) => {
             println!("  {}Error{}: HTML did not match expected website, are you sure that is ica?",
@@ -151,4 +151,11 @@ async fn main() {
                     color::Fg(color::Yellow),
                     color::Fg(color::Reset))
     }
+}
+
+
+// This function will be useful when extending functionality to other stores 
+// besides ica, it is meant to get the type of website to make scraping easier
+fn get_store_type(store: String) -> crawler::StoreTypes {
+    return crawler::StoreTypes::ICA;
 }
