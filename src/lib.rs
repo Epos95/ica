@@ -9,6 +9,16 @@ pub struct Config {
     pub urls: Vec<String>
 }
 
+impl Config {
+    pub fn new(words: Vec<String>, urls: Vec<String>) -> Self {
+        Config {
+            word_list: words,
+            urls: urls
+        }
+
+    }
+}
+
 #[derive(Debug)]
 pub struct Item {
     pub name: String,

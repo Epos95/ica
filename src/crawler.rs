@@ -27,13 +27,15 @@ pub async fn get_items(dom: Document, store_type: StoreTypes) -> Result<Vec<Item
             .map(|x| normalize(x.text()))
             .collect();
 
-        res.push(Item::new(
-            names.get(ctr).unwrap().to_string(),
-            a.get(0).unwrap().to_string(),
-            a.get(1).unwrap().to_string(),
-            a.get(2).unwrap().to_string(),
-            parse_more_info(a.get(2).unwrap().to_string())
-        ));
+        res.push(
+            Item::new(
+                names.get(ctr).unwrap().to_string(),
+                a.get(0).unwrap().to_string(),
+                a.get(1).unwrap().to_string(),
+                a.get(2).unwrap().to_string(),
+                parse_more_info(a.get(2).unwrap().to_string())
+            )
+        );
     }
 
     Ok(res)

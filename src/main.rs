@@ -36,6 +36,14 @@ async fn main() {
              .value_name("STORE"))
         .get_matches();
 
+
+    // errors regarding listing everything needs to be fixed
+    // specifically that we cant list everything without a valid config
+
+    // solution:
+    // if we fail to read the config when the "all" option is set
+    // we should create a dummy object while asking the user for a url 
+
     // get config struct
     let config = match reader::get_config(matches.clone()) {
         Ok(s) => s,
@@ -43,13 +51,28 @@ async fn main() {
             println!("   {}Error{}: couldnt read the file",
                      color::Fg(color::Red),
                      color::Fg(color::Reset));
-            std::process::exit(0);
+            
+
+            // if the user specified all then not having a config is fine
+            if matches.is_present("all") {
+                get_dummy_config()
+            } else {
+                std::process::exit(0);
+            }
+
         },
         Err(reader::ReaderErrors::InvalidConfigFile) => {
             println!("   {}Error{}: invalid config file format",
                      color::Fg(color::Red),
                      color::Fg(color::Reset));
-            std::process::exit(0);
+                    
+
+            // if the user specified all then not having a config is fine
+            if matches.is_present("all") {
+                get_dummy_config()
+            } else {
+                std::process::exit(0);
+            }
         }
     };
 
@@ -158,4 +181,13 @@ async fn main() {
 // besides ica, it is meant to get the type of website to make scraping easier
 fn get_store_type(store: String) -> crawler::StoreTypes {
     return crawler::StoreTypes::ICA;
+}
+
+// this function is meant to return a dummy config to be used when the "all" option 
+// is passed
+fn get_dummy_config() -> ica::Config {
+    let urls: Vec<String> = vec![];
+
+    // ask the user for url via input here
+    ica::Config::new(Vec::new(), urls: vec!["lmao".to_string()])
 }
