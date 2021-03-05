@@ -1,7 +1,8 @@
 use clap::{Arg, App};
 use std::io;
 use std::io::BufRead;
-use termion::*;
+//use termion::*; use crossterm instead
+// TODO: replace termion with some other library for getting color in the terminal
 
 mod reader;
 mod networker;
@@ -189,5 +190,5 @@ fn get_dummy_config() -> ica::Config {
     let urls: Vec<String> = vec![];
 
     // ask the user for url via input here
-    ica::Config::new(Vec::new(), urls: vec!["lmao".to_string()])
+    ica::Config::new(Vec::new(), urls)
 }
