@@ -1,7 +1,8 @@
 use clap::{Arg, App};
 use std::io;
 use std::io::BufRead;
-use termion::*;
+//use termion::*; use crossterm instead
+// TODO: replace termion with some other library for getting color in the terminal
 
 mod reader;
 mod networker;
