@@ -189,5 +189,5 @@ fn get_dummy_config() -> ica::Config {
     let urls: Vec<String> = vec![];
 
     // ask the user for url via input here
-    ica::Config::new(Vec::new(), urls: vec!["lmao".to_string()])
+    ica::Config::new(Vec::new(), urls)
 }
