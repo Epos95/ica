@@ -1,3 +1,4 @@
+#![warn(unused_extern_crates)]
 use clap::{Arg, App};
 use std::io;
 use std::io::BufRead;
@@ -136,7 +137,6 @@ async fn main() {
              color::Fg(color::Reset),
              selected_store.to_string());
 
-
     let document = match networker::get_dom(&selected_store).await {
         Ok(s) => {
             println!("  {}Ok{}: Downloaded HTML document.",
@@ -169,6 +169,11 @@ async fn main() {
         }
         //_ => { panic!("unimplemented error"); }
     };
+
+
+    println!("  {}Ok{}: Retrived items from document.",
+                color::Fg(color::Green),
+                color::Fg(color::Reset));
 
     if let Err(caster::CasterErrors::NoProductsFound) = caster::show(items, matches, config) {
         println!("  {}Info{}: No matching products where found!",
