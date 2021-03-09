@@ -1,7 +1,7 @@
 
 use ica::*;
 use clap::ArgMatches;
-use termion::*;
+use crossterm::style::*;
 
 pub fn show(
     items: Vec<Item>, matches: ArgMatches, config: Config

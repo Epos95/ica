@@ -5,6 +5,8 @@ use std::io::BufRead;
 //use termion::*; use crossterm instead
 // TODO: replace termion with some other library for getting color in the terminal
 
+use crossterm::style::*;
+
 mod reader;
 mod networker;
 mod crawler;
@@ -50,9 +52,15 @@ async fn main() {
     let config = match reader::get_config(matches.clone()) {
         Ok(s) => s,
         Err(reader::ReaderErrors::CouldntReadFile) => {
+            println!("   {}{}",
+                     "Error".red(),
+                     ": Could not read the file");
+                    
+            /*
             println!("   {}Error{}: couldnt read the file",
                      color::Fg(color::Red),
                      color::Fg(color::Reset));
+            */
             
 
             // if the user specified all then not having a config is fine
@@ -64,9 +72,9 @@ async fn main() {
 
         },
         Err(reader::ReaderErrors::InvalidConfigFile) => {
-            println!("   {}Error{}: invalid config file format",
-                     color::Fg(color::Red),
-                     color::Fg(color::Reset));
+            println!("   {}{}",
+                     "Error".red(),
+                     ": Invalid config file format.");
                     
 
             // if the user specified all then not having a config is fine
@@ -83,9 +91,9 @@ async fn main() {
     } else {
         match config.urls.len() {
             0 => {
-                println!("   {}Error{}: no stores listed in config file.",
-                            color::Fg(color::Red),
-                            color::Fg(color::Reset));
+                println!("   {}{}",
+                        "Error".red(),
+                        ": No stores listed in config file.");
                 std::process::exit(0);
             },
             1 => config.urls[0].clone(),
@@ -94,11 +102,9 @@ async fn main() {
 
                 println!(" Choose store url to use:");
                 for (i, store) in config.urls.iter().enumerate() {
-                    println!("  {}{}{}: {}",
-                            style::Bold,
-                            i+1,
-                            style::Reset,
-                            store);
+                    println!("  {}: {}",
+                             (i+1).to_string().bold(),
+                             store);
                 }
 
                 let mut line = String::new();
@@ -132,28 +138,28 @@ async fn main() {
         }
     };
 
-    println!("  {}Ok{}: Using store url: {}",
-             color::Fg(color::Green),
-             color::Fg(color::Reset),
-             selected_store.to_string());
+    println!("   {}{}\n     {}",
+            "Ok".green(),
+            ": Using store url: ",
+            selected_store.to_string());
 
     let document = match networker::get_dom(&selected_store).await {
         Ok(s) => {
-            println!("  {}Ok{}: Downloaded HTML document.",
-                     color::Fg(color::Green),
-                     color::Fg(color::Reset));
+            println!("   {}{}",
+                    "Ok".green(),
+                    ": Downloaded HTML document.");
             s
         }
         Err(networker::NetworkerErrors::NetworkError) => {
-            println!("   {}Error{}: Could not connect to website.",
-                        color::Fg(color::Red),
-                        color::Fg(color::Reset));
+            println!("   {}{}",
+                    "Error".red(),
+                    ": Could not connect to website");
             std::process::exit(0);
         },
         Err(networker::NetworkerErrors::ConversionError) => {
-            println!("  {}Error{}: Could not get text of HTML.",
-                        color::Fg(color::Red),
-                        color::Fg(color::Reset));
+            println!("   {}{}",
+                    "Error".red(),
+                    ": Could not get text of HTML");
             std::process::exit(0);
         },
         //_ => { panic!("unimplemented error"); store: String}
@@ -162,23 +168,23 @@ async fn main() {
     let items = match crawler::get_items(document, get_store_type(selected_store)).await {
         Ok(s) => s,
         Err(crawler::CrawlerErrors::HTMLStructureError) => {
-            println!("  {}Error{}: HTML did not match expected website, are you sure that is ica?",
-                        color::Fg(color::Red),
-                        color::Fg(color::Reset));
+            println!("   {}{}",
+                    "Error".red(),
+                    ": HTML did not match exected website.");
             std::process::exit(0);
         }
         //_ => { panic!("unimplemented error"); }
     };
 
 
-    println!("  {}Ok{}: Retrived items from document.",
-                color::Fg(color::Green),
-                color::Fg(color::Reset));
+    println!("   {}{}",
+            "Ok".green(),
+            ": Retrived items from document");
 
     if let Err(caster::CasterErrors::NoProductsFound) = caster::show(items, matches, config) {
-        println!("  {}Info{}: No matching products where found!",
-                    color::Fg(color::Yellow),
-                    color::Fg(color::Reset))
+        println!("   {}{}",
+                "Info".yellow(),
+                ": No matchning productes were found!");
     }
 }
 

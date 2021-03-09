@@ -2,7 +2,7 @@
 use ica::*;
 use clap::ArgMatches;
 use std::fs;
-use termion::*;
+use crossterm::style::*;
 
 // entry point
 pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
@@ -33,11 +33,10 @@ pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
         _ => { return Err(ReaderErrors::InvalidConfigFile); }
     };
 
-    println!("{}  Ok{}: Found config file at {}",
-            color::Fg(color::Green),
-            color::Fg(color::Reset),
-            filename
-    );
+    println!("   {}{}{}",
+             "Ok".green(),
+             ": Found config file at ",
+             filename);
 
     Ok(json)
 }
