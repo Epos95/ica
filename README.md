@@ -17,8 +17,6 @@ link mail or something here
 - [x] Port to crossterm
 - [ ] Arg for creating a config file
 - [ ] Add support for other stores than ICA
-    - [ ] COOP
-    - [ ] lidl(?)
 - [ ] Finish -d arg option
 - [ ] Make sure -a works
 - [ ] Introduce tests for support functions
