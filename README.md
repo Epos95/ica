@@ -1,19 +1,19 @@
-# Ica
+## Ica
 ICA is a terminal application for scraping grocery stores websites for extra prices and presents them in a readable fashion. All written in Rust.
 
-## Features
+### Features
 
 
-## Installation
+### Installation
 
 
-## Usage
+### Usage
 
 
-## Support
+### Support
 link mail or something here
 
-## Planned features
+### Planned features
 - [x] Port to crossterm
 - [ ] Arg for creating a config file
 - [ ] Add support for other stores than ICA
@@ -22,6 +22,6 @@ link mail or something here
 - [ ] Introduce tests for support functions
 - [ ] Decide on a license lmao
 
-## License
+### License
 TODO
 [MIT](https://choosealicense.com/licenses/mit/)
