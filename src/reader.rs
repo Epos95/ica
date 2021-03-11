@@ -22,10 +22,20 @@ pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
     };
 
     // read from file
+    println!("   {}{}{}",
+             "Ok".green(),
+             ": Found config file at ",
+             filename);
+
     let s: String = match fs::read_to_string(&filename) {
         Ok(s) => s,
         _ => { return Err(ReaderErrors::CouldntReadFile); }
     };
+
+    println!("   {}{}",
+             "Ok".green(),
+             ": read file succesfully."
+             );
 
     // convert to json
     let json: Config = match serde_json::from_str(&s) {
@@ -33,10 +43,6 @@ pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
         _ => { return Err(ReaderErrors::InvalidConfigFile); }
     };
 
-    println!("   {}{}{}",
-             "Ok".green(),
-             ": Found config file at ",
-             filename);
 
     Ok(json)
 }
