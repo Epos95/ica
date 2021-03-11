@@ -1,5 +1,5 @@
-# ica
-ICA is a terminal script for scraping grocery stores websites for extra prices and presents them.
+# Ica
+ICA is a terminal application for scraping grocery stores websites for extra prices and presents them in a readable fashion. All written in Rust.
 
 ## Features
 
@@ -13,7 +13,7 @@ ICA is a terminal script for scraping grocery stores websites for extra prices a
 ## Support
 link mail or something here
 
-## todo
+## Planned features
 - [x] Port to crossterm
 - [ ] Arg for creating a config file
 - [ ] Add support for other stores than ICA
