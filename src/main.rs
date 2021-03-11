@@ -2,15 +2,13 @@
 use clap::{Arg, App};
 use std::io;
 use std::io::BufRead;
-//use termion::*; use crossterm instead
-// TODO: replace termion with some other library for getting color in the terminal
-
 use crossterm::style::*;
 
 mod reader;
 mod networker;
 mod crawler;
 mod caster;
+mod creator;
 
 #[tokio::main]
 async fn main() {
@@ -38,8 +36,32 @@ async fn main() {
              .long("url")
              .takes_value(true)
              .value_name("STORE"))
+        .arg(Arg::new("create")
+            .about("Helps the user create a config file in a specific place")
+            .long("create")
+            .takes_value(false))
         .get_matches();
 
+    if matches.is_present("create") {
+        match creator::create_config() {
+            Ok(s) => {
+
+            },
+            Err(creator::CreatorErrors::HomeNotFound) => {
+                println!("  {}{}",
+                        "Error".red(),
+                        ": Home directory not found.");
+            },
+            Err(creator::CreatorErrors::FileAlreadyExists) => {
+                println!("  {}{}",
+                        "Error".red(),
+                        ": File already exists.");
+            }
+            _ => {
+                unimplemented!();
+            }
+        }
+    }
 
     // errors regarding listing everything needs to be fixed
     // specifically that we cant list everything without a valid config
@@ -56,12 +78,6 @@ async fn main() {
                      "Error".red(),
                      ": Could not read the file");
                     
-            /*
-            println!("   {}Error{}: couldnt read the file",
-                     color::Fg(color::Red),
-                     color::Fg(color::Reset));
-            */
-            
 
             // if the user specified all then not having a config is fine
             if matches.is_present("all") {

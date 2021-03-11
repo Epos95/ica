@@ -43,9 +43,10 @@ pub fn get_config(matches: ArgMatches) -> Result<Config, ReaderErrors> {
         _ => { return Err(ReaderErrors::InvalidConfigFile); }
     };
 
-
     Ok(json)
 }
+
+
 
 pub enum ReaderErrors {
     CouldntReadFile,

@@ -15,6 +15,7 @@ link mail or something here
 
 ## todo
 - [x] Port to crossterm
+- [ ] Arg for creating a config file
 - [ ] Add support for other stores than ICA
     - [ ] COOP
     - [ ] lidl(?)
