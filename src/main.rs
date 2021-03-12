@@ -42,6 +42,7 @@ async fn main() {
             .takes_value(false))
         .get_matches();
 
+
     if matches.is_present("create") {
         match creator::create_config() {
             Ok(s) => {
@@ -61,6 +62,7 @@ async fn main() {
                 unimplemented!();
             }
         }
+        std::process::exit(0);
     }
 
     // errors regarding listing everything needs to be fixed
