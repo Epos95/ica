@@ -2,7 +2,7 @@
 use std::io;
 use std::io::BufRead;
 use std::path::Path;
-use std::fs::File;
+use std::fs::*;
 use ica::*;
 use crossterm::style::*;
 
@@ -27,16 +27,17 @@ pub fn create_config() -> Result<String, CreatorErrors> {
     }
 
     // check if file already exists
-    if !Path::new(&filename).exists() {
+    if Path::new(&filename).exists() {
         // config (or just) file already exists
         return Err(CreatorErrors::FileAlreadyExists);
     }
 
+    // something is wrong with the way we create files
     // create file
-    let mut fp = if let Ok(s) = File::create(&filename) {
+    let mut fp = if let Ok(s) = create_dir_all(&filename) {
         s
     } else {
-        return Err(CreatorErrors::CouldntReadFile)
+        return Err(CreatorErrors::CouldntCreateFile)
     };
 
     let mut words: Vec<String> = vec![];
@@ -66,22 +67,11 @@ pub fn create_config() -> Result<String, CreatorErrors> {
 
 
 
-    
-
-    
-
-    
-
-
-
-    
-
-
     Ok("".to_string())
 }
 
 pub enum CreatorErrors {
     HomeNotFound,
     FileAlreadyExists,
-    CouldntReadFile
+    CouldntCreateFile
 }

@@ -53,6 +53,11 @@ async fn main() {
                         "Error".red(),
                         ": Home directory not found.");
             },
+            Err(creator::CreatorErrors::CouldntCreateFile) => {
+                println!("  {}{}",
+                        "Error".red(),
+                        ": Could not create the config file.");
+            }
             Err(creator::CreatorErrors::FileAlreadyExists) => {
                 println!("  {}{}",
                         "Error".red(),
