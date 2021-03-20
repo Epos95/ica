@@ -15,7 +15,6 @@ impl Config {
             word_list: words,
             urls: urls
         }
-
     }
 }
 

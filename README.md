@@ -7,6 +7,7 @@ ICA is a terminal application for scraping grocery stores websites for extra pri
 ## Installation
 
 
+
 ## Usage
 
 

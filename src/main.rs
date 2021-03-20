@@ -109,7 +109,7 @@ async fn main() {
         }
     };
 
-    let selected_store = if matches.is_present("url") {
+    let store_url = if matches.is_present("url") {
         matches.value_of("url").unwrap().to_string()
     } else {
         match config.urls.len() {
@@ -164,9 +164,9 @@ async fn main() {
     println!("   {}{}\n     {}",
             "Ok".green(),
             ": Using store url: ",
-            selected_store.to_string());
+            store_url.to_string());
 
-    let document = match networker::get_dom(&selected_store).await {
+    let document = match networker::get_dom(&store_url).await {
         Ok(s) => {
             println!("   {}{}",
                     "Ok".green(),
@@ -188,7 +188,7 @@ async fn main() {
         //_ => { panic!("unimplemented error"); store: String}
     };
 
-    let items = match crawler::get_items(document, get_store_type(selected_store)).await {
+    let items = match crawler::get_items(document, get_store_type(store_url)).await {
         Ok(s) => s,
         Err(crawler::CrawlerErrors::HTMLStructureError) => {
             println!("   {}{}",
