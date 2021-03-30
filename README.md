@@ -1,9 +1,6 @@
 # Ica
 ICA is a terminal application for scraping grocery stores websites for extra prices and presents them in a readable fashion. All written in Rust.
 
-## Features
-
-
 ## Installation
 Build from scratch by cloning or install with cargo:
 ``` 
@@ -34,21 +31,20 @@ The config may consist of one or more urls, these can later be chosen from when 
 
 ``` ica ```   Will select one of the urls from the config file and match deals towards the wordlist and print them.
 
-``` ica -a ``` Will print out all the deals from one of the urls from the config file.
+``` ica -a ``` Will print out _all_ the deals from one of the urls from the config file.
 
 ``` ica -c <path to config file> ``` Will use config file from the specified file.
 
 ``` ica -u <url> ``` Instead of reading a url from a config file ica will use the specified url.
 
 ## Support
-link mail or something here
+Email me or something lol
 
 ## Planned features
 - [x] Port to crossterm
 - [ ] Arg for creating a config file
 - [ ] Add support for other stores than ICA
 - [ ] Finish -d arg option
-- [ ] Make sure -a works
 - [ ] Introduce tests for support functions
 - [ ] Decide on a license lmao
 
