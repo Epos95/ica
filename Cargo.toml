@@ -3,6 +3,8 @@ name = "ica"
 version = "0.1.0"
 authors = ["epos95 <max.agnesund95@gmail.com>"]
 edition = "2018"
+license = "AGPL-3.0"
+description = "When you are too lazy too check Icas website."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
