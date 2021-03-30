@@ -5,7 +5,7 @@ use select::node::Node;
 
 use ica::*;
 
-pub async fn get_items(dom: Document, store_type: StoreTypes) -> Result<Vec<Item>, CrawlerErrors> {
+pub async fn get_items(dom: Document) -> Result<Vec<Item>, CrawlerErrors> {
 
     // the storetype given should decide how to parse the given document
 
@@ -43,11 +43,6 @@ pub async fn get_items(dom: Document, store_type: StoreTypes) -> Result<Vec<Item
 
 pub enum CrawlerErrors {
     HTMLStructureError
-}
-
-pub enum StoreTypes {
-    ICA,
-    COOP
 }
 
 fn normalize(s: String) -> String {

@@ -1,7 +1,6 @@
 
 use ica::*;
 use clap::ArgMatches;
-use crossterm::style::*;
 
 pub fn show(
     items: Vec<Item>, matches: ArgMatches, config: Config

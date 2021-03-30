@@ -1,4 +1,3 @@
-#![warn(unused_extern_crates)]
 use clap::{Arg, App};
 use std::io;
 use std::io::BufRead;
@@ -8,7 +7,6 @@ mod reader;
 mod networker;
 mod crawler;
 mod caster;
-mod creator;
 
 #[tokio::main]
 async fn main() {
@@ -26,56 +24,14 @@ async fn main() {
              .about("Print out everything that is on sale, not just stuff that \
                     matches the given config file")
              .short('a'))
-        .arg(Arg::new("dump")
-             .about("Dumps output as json")
-             .long("dump")
-             .short('d'))
         .arg(Arg::new("url")
              .about("The url of the store to check out")
              .short('u')
              .long("url")
              .takes_value(true)
              .value_name("STORE"))
-        .arg(Arg::new("create")
-            .about("Helps the user create a config file in a specific place")
-            .long("create")
-            .takes_value(false))
         .get_matches();
 
-
-    if matches.is_present("create") {
-        match creator::create_config() {
-            Ok(s) => {
-
-            },
-            Err(creator::CreatorErrors::HomeNotFound) => {
-                println!("  {}{}",
-                        "Error".red(),
-                        ": Home directory not found.");
-            },
-            Err(creator::CreatorErrors::CouldntCreateFile) => {
-                println!("  {}{}",
-                        "Error".red(),
-                        ": Could not create the config file.");
-            }
-            Err(creator::CreatorErrors::FileAlreadyExists) => {
-                println!("  {}{}",
-                        "Error".red(),
-                        ": File already exists.");
-            }
-            _ => {
-                unimplemented!();
-            }
-        }
-        std::process::exit(0);
-    }
-
-    // errors regarding listing everything needs to be fixed
-    // specifically that we cant list everything without a valid config
-
-    // solution:
-    // if we fail to read the config when the "all" option is set
-    // we should create a dummy object while asking the user for a url 
 
     // get config struct
     let config = match reader::get_config(matches.clone()) {
@@ -188,7 +144,7 @@ async fn main() {
         //_ => { panic!("unimplemented error"); store: String}
     };
 
-    let items = match crawler::get_items(document, get_store_type(store_url)).await {
+    let items = match crawler::get_items(document).await {
         Ok(s) => s,
         Err(crawler::CrawlerErrors::HTMLStructureError) => {
             println!("   {}{}",
@@ -209,13 +165,6 @@ async fn main() {
                 "Info".yellow(),
                 ": No matchning productes were found!");
     }
-}
-
-
-// This function will be useful when extending functionality to other stores 
-// besides ica, it is meant to get the type of website to make scraping easier
-fn get_store_type(store: String) -> crawler::StoreTypes {
-    return crawler::StoreTypes::ICA;
 }
 
 // this function is meant to return a dummy config to be used when the "all" option 
